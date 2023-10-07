@@ -1,24 +1,35 @@
 let playerScore = 0;
 let computerScore = 0;
-let gameEnded = false;
 let round = 1;
 const historyList = document.getElementById('history-list');
+const inputField = document.getElementById('player-input');
+const playButton = document.querySelector('button');
 
-function playerChoice(playerSelection) {
-    if (gameEnded) return;
+inputField.addEventListener('keyup', function(event) {
+    if (event.key === 'Enter') {
+        playRound();
+    }
+});
+
+function playRound() {
+    const playerInput = inputField.value.trim().toLowerCase();
+    if (!playerInput || (playerInput !== 'rock' && playerInput !== 'paper' && playerInput !== 'scissors')) {
+        alert("Invalid inpur. Please enter'Rock', 'Paper' veya 'Scissors'.");
+        return;
+    }
 
     const choices = ['rock', 'paper', 'scissors'];
     const computerSelection = choices[Math.floor(Math.random() * 3)];
 
-    const result = playRound(playerSelection, computerSelection);
+    const result = getResult(playerInput, computerSelection);
 
     const historyItem = document.createElement('li');
-    historyItem.textContent = `Round ${round}: Computer (${computerSelection}) - Player(${playerSelection}) - ${result}`;
+    historyItem.textContent = `Round ${round}: Bilgisayar (${computerSelection}) - Oyuncu (${playerInput}) - ${result}`;
     historyList.appendChild(historyItem);
 
-    if (result === 'win') {
+    if (result === 'player') {
         playerScore++;
-    } else if (result === 'lose') {
+    } else if (result === 'computer') {
         computerScore++;
     }
 
@@ -30,47 +41,46 @@ function playerChoice(playerSelection) {
         resultElement.textContent = 'Player Won!';
         endGame();
     } else if (computerScore === 3) {
-        resultElement.textContent = 'Computer Won!';
+        resultElement.textContent = 'Computer Won';
         endGame();
     } else {
-        resultElement.textContent = `Result: ${result}`;
+        resultElement.textContent = `Result: Round ${result} won.`;
     }
 
     round++;
+    inputField.value = '';
 }
 
-function playRound(playerSelection, computerSelection) {
-    if (playerSelection === computerSelection) {
-        return 'DRAW';
+function getResult(playerInput, computerSelection) {
+    if (playerInput === computerSelection) {
+        return 'draw';
     } else if (
-        (playerSelection === 'rock' && computerSelection === 'scissors') ||
-        (playerSelection === 'paper' && computerSelection === 'rock') ||
-        (playerSelection === 'scissors' && computerSelection === 'paper')
+        (playerInput === 'rock' && computerSelection === 'scissors') ||
+        (playerInput === 'paper' && computerSelection === 'rock') ||
+        (playerInput === 'scissors' && computerSelection === 'paper')
     ) {
-        return 'win';
+        return 'player';
     } else {
-        return 'lose';
+        return 'computer';
     }
 }
 
 function endGame() {
-    gameEnded = true;
+    inputField.disabled = true;
+    playButton.disabled = true;
     document.getElementById('restart-button').style.display = 'block';
 }
 
 function restartGame() {
-    gameEnded = false;
     playerScore = 0;
     computerScore = 0;
     round = 1;
-
-    const scoreElement = document.getElementById('score');
-    scoreElement.textContent = 'Computer: 0 - Player: 0';
-
-    const resultElement = document.getElementById('result');
-    resultElement.textContent = '';
-
     historyList.innerHTML = '';
-
+    inputField.disabled = false;
+    playButton.disabled = false;
+    inputField.value = '';
+    document.getElementById('score').textContent = 'Bilgisayar: 0 - Oyuncu: 0';
+    document.getElementById('result').textContent = '';
     document.getElementById('restart-button').style.display = 'none';
 }
+
